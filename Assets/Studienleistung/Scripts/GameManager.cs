@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿/// <summary>
+/// Game manager.
+/// 
+/// Controls the game state, environment and UI functions.
+/// </summary>
+
+
+using UnityEngine;
 using System.Collections;
 
 public class GameManager : MonoBehaviour
@@ -6,12 +13,14 @@ public class GameManager : MonoBehaviour
 	// system state
 	private bool isGameWon = false;
 	private float timeSinceStart = 0.0f;
+	private bool isCountingTime = true;
 
 	// UI
 	private bool isShowingOpenerButton = false;
 	private GUIStyle styleLPs;
 	private GUIStyle styleWon;
-	// important game objects
+
+	// important game object references
 	private Door[] doors;
 	private Door selectedDoor;
 	private Monster monster;
@@ -42,6 +51,9 @@ public class GameManager : MonoBehaviour
 	/// </summary>
 	void FixedUpdate ()
 	{
+		if (isCountingTime)
+			timeSinceStart += Time.deltaTime;
+
 		foreach (Door door in doors) {
 			door.Refresh ();
 		}
@@ -54,8 +66,12 @@ public class GameManager : MonoBehaviour
 	/// </summary>
 	void OnGUI ()
 	{
-		string text = "LP: " + player.lifePoints + "/" + PlayerManager.MAX_LIFE_POINTS;
-		GUI.Label (new Rect (10, 10, 100, 100), text, styleLPs);
+		// LP label
+		string textLP = "LP: " + player.lifePoints + "/" + PlayerManager.MAX_LIFE_POINTS;
+		GUI.Label (new Rect (10, 10, 100, 20), textLP, styleLPs);
+		// time label
+		string textTime = "Time: " + (int)timeSinceStart;
+		GUI.Label (new Rect (10, 30, 100, 20), textTime, styleLPs);
 
 		// occasionally show opener button
 		if (isShowingOpenerButton) {
@@ -65,8 +81,10 @@ public class GameManager : MonoBehaviour
 			}
 		}
 
+		// if the game is won, show the winner label
 		if (isGameWon) {
 			GUI.Label (new Rect (Screen.width / 2 - 100 / 2, Screen.height / 2 + 100 / 2, 100, 100), "YOU WON!", styleWon);
+			GUI.Label (new Rect (Screen.width / 2 - 170 / 2, Screen.height / 2 + 200 / 2, 100, 100), "Time: " + (int)timeSinceStart + " seconds", styleWon);
 		}
 	}
 
@@ -74,6 +92,10 @@ public class GameManager : MonoBehaviour
 	//
 	// Player Callbacks
 
+	/// <summary>
+	/// Check, if the player has died and react to this. Callback coming from PlayerManager
+	/// </summary>
+	/// <param name="newVal">New value.</param>
 	private void OnPlayerHealthChanged (int newVal)
 	{
 		Debug.Log ("Player Health Changed to " + newVal);
@@ -83,15 +105,23 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Check, if the goal has been Reached. Coming from VictoryTrigger
+	/// </summary>
 	private void OnGameWon ()
 	{
-		Debug.Log ("Won");
+		// update system status
 		isGameWon = true;
+		// disable timer
+		isCountingTime = false;
+		// play victory sound
 		GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.WIN_SOUND);
 
+		// wait
 		StartCoroutine (Wait ());
 	}
 
+	// wait and reset game then
 	IEnumerator Wait ()
 	{
 		yield return new WaitForSeconds (5);
@@ -100,37 +130,47 @@ public class GameManager : MonoBehaviour
 		
 	//
 	//
-	// UI
+	// UI Functions
+
+	/// <summary>
+	/// If a door trigger has been entered, the game should show the door open button.
+	/// </summary>
+	/// <param name="connectedDoor">Connected door.</param>
 	public void ShowDoorOpenButton (Door connectedDoor)
 	{
 		isShowingOpenerButton = true;
 		selectedDoor = connectedDoor;
 	}
 
+	/// <summary>
+	/// If a door trigger has been used or exited, hide the door button and deselect the door.
+	/// </summary>
 	public void HideDoorOpenButton ()
 	{
 		isShowingOpenerButton = false;
 		selectedDoor = null;
 	}
 
-	public void ShowGameWon ()
-	{
-		Debug.Log ("Won");
-	}
+	//
+	//
+	// Game Control function
 
 	public void ResetGame ()
 	{
-		Debug.Log ("Reset");
+		// reset counter
+		isCountingTime = true;
+		timeSinceStart = 0;
+		// reset game state
 		isGameWon = false;
+		// respawn player
 		GameObject.Find ("Player").GetComponent <PlayerManager> ().Respawn ();
-
+		// reactivate bombs
 		foreach (BombTrigger bomb in gameObject.GetComponentsInChildren<BombTrigger>()) {
 			bomb.SetActive (true);
 		}
-
+		// close all doors
 		foreach (Door door in gameObject.GetComponentsInChildren<Door>()) {
 			door.Close ();
 		}
 	}
-
 }
