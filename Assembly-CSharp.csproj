@@ -45,25 +45,21 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Monster.cs" />
+     <Compile Include="Assets\SoundManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\BombTrigger.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\Door.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\DoorTrigger.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\GameManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\PlayerInputManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\PlayerManager.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\PlayerMovementManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\VictoryTrigger.cs" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
+     <None Include="Assets\Studienleistung\Audio\credits.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Analytics">
- <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Cecil">
  <HintPath>G:/Unity3D/Editor/Data/Managed/Mono.Cecil.dll</HintPath>

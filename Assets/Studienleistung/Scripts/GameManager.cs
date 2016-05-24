@@ -3,44 +3,57 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-	private Door[] doors;
+	// system state
+	private bool isGameWon = false;
+	private float timeSinceStart = 0.0f;
 
 	// UI
 	private bool isShowingOpenerButton = false;
-	private Door selectedDoor;
-
 	private GUIStyle styleLPs;
 	private GUIStyle styleWon;
+	// important game objects
+	private Door[] doors;
+	private Door selectedDoor;
+	private Monster monster;
+	PlayerManager player;
 
-	private bool isGameWon = false;
 
 	void Start ()
 	{
+		// add callbacks
 		PlayerManager.OnPlayerHealthChanged += OnPlayerHealthChanged;
 		VictoryTrigger.OnGameWon += OnGameWon;
-		doors = gameObject.GetComponentsInChildren<Door> ();
 
+		// initialize references
+		doors = gameObject.GetComponentsInChildren<Door> ();
+		monster = gameObject.GetComponentInChildren<Monster> ();
+		player = gameObject.GetComponentInChildren <PlayerManager> ();
+
+		// initialize UI styles
 		styleLPs = new GUIStyle ();
 		styleLPs.normal.textColor = Color.gray;
-
 		styleWon = new GUIStyle ();
 		styleWon.normal.textColor = Color.red;
 		styleWon.fontSize = 40;
 	}
 
+	/// <summary>
+	/// Central Updating functions for environment and monsters
+	/// </summary>
 	void FixedUpdate ()
 	{
-		Debug.Log ("main camera " + Camera.current);
-
 		foreach (Door door in doors) {
 			door.Refresh ();
 		}
+
+		monster.Refresh ();
 	}
 
+	/// <summary>
+	/// Draw UI Layer
+	/// </summary>
 	void OnGUI ()
 	{
-		PlayerManager player = GameObject.Find ("Player").GetComponent <PlayerManager> ();
-
 		string text = "LP: " + player.lifePoints + "/" + PlayerManager.MAX_LIFE_POINTS;
 		GUI.Label (new Rect (10, 10, 100, 100), text, styleLPs);
 
@@ -48,6 +61,7 @@ public class GameManager : MonoBehaviour
 		if (isShowingOpenerButton) {
 			if (GUI.Button (new Rect (Screen.width / 2 - 100 / 2, Screen.height / 2 + 100 / 2, 100, 100), "OPEN")) {
 				selectedDoor.Open ();
+				GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.DOOR_SOUND);
 			}
 		}
 
@@ -73,6 +87,7 @@ public class GameManager : MonoBehaviour
 	{
 		Debug.Log ("Won");
 		isGameWon = true;
+		GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.WIN_SOUND);
 
 		StartCoroutine (Wait ());
 	}

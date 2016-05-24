@@ -21,7 +21,7 @@ public class DoorTrigger : MonoBehaviour
 
 			root.GetComponent<GameManager> ().ShowDoorOpenButton (m_door);
 			// play 'bing'
-			root.GetComponent<AudioSource> ().Play ();
+			root.GetComponent<SoundManager> ().PlaySound (SoundManager.TRIGGER_SOUND);
 		}
 	}
 

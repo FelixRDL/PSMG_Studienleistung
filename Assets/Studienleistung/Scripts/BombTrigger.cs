@@ -9,6 +9,7 @@ public class BombTrigger : MonoBehaviour
 	{
 		PlayerManager player = other.gameObject.GetComponent<PlayerManager> ();
 		if (player != null) {
+			GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.BOOM_SOUND);
 			player.lifePoints -= bombDamage;
 			SetActive (false);
 		}
