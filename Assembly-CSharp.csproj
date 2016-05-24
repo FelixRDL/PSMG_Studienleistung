@@ -45,15 +45,15 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Monster.cs" />
-     <Compile Include="Assets\SoundManager.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\BombTrigger.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\Door.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\DoorTrigger.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Environment\BombTrigger.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Environment\Door.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Environment\DoorTrigger.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Environment\Monster.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Environment\VictoryTrigger.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\PlayerInputManager.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\PlayerManager.cs" />
-     <Compile Include="Assets\Studienleistung\Scripts\VictoryTrigger.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Player\PlayerInputManager.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\Player\PlayerManager.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\SoundManager.cs" />
      <None Include="Assets\Studienleistung\Audio\credits.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
