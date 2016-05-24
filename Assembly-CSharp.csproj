@@ -54,6 +54,7 @@
      <Compile Include="Assets\Studienleistung\Scripts\Player\PlayerInputManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\Player\PlayerManager.cs" />
      <Compile Include="Assets\Studienleistung\Scripts\SoundManager.cs" />
+     <Compile Include="Assets\Studienleistung\Scripts\UIManager.cs" />
      <None Include="Assets\Studienleistung\Audio\credits.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Unity3D/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

@@ -1,7 +1,10 @@
 ﻿/// <summary>
 /// Game manager.
 /// 
-/// Controls the game state, environment and UI functions.
+/// Controls the game state and environment.
+/// 
+/// NOTE: Unfortunately I recognised, that this class has not been conceptionalized static per se. Since it is too late to correct the issue in all associated scripts, 
+/// I have implemented the system singleton-like, as component of a individual "root" game object.
 /// </summary>
 
 
@@ -12,19 +15,15 @@ public class GameManager : MonoBehaviour
 {
 	// system state
 	private bool isGameWon = false;
+	private bool isGameLost = false;
 	private float timeSinceStart = 0.0f;
 	private bool isCountingTime = true;
-
-	// UI
-	private bool isShowingOpenerButton = false;
-	private GUIStyle styleLPs;
-	private GUIStyle styleWon;
-
 	// important game object references
 	private Door[] doors;
 	private Door selectedDoor;
 	private Monster monster;
 	PlayerManager player;
+	UIManager ui;
 
 
 	void Start ()
@@ -32,18 +31,11 @@ public class GameManager : MonoBehaviour
 		// add callbacks
 		PlayerManager.OnPlayerHealthChanged += OnPlayerHealthChanged;
 		VictoryTrigger.OnGameWon += OnGameWon;
-
 		// initialize references
 		doors = gameObject.GetComponentsInChildren<Door> ();
 		monster = gameObject.GetComponentInChildren<Monster> ();
 		player = gameObject.GetComponentInChildren <PlayerManager> ();
-
-		// initialize UI styles
-		styleLPs = new GUIStyle ();
-		styleLPs.normal.textColor = Color.gray;
-		styleWon = new GUIStyle ();
-		styleWon.normal.textColor = Color.red;
-		styleWon.fontSize = 40;
+		ui = gameObject.GetComponent<UIManager> ();
 	}
 
 	/// <summary>
@@ -61,33 +53,6 @@ public class GameManager : MonoBehaviour
 		monster.Refresh ();
 	}
 
-	/// <summary>
-	/// Draw UI Layer
-	/// </summary>
-	void OnGUI ()
-	{
-		// LP label
-		string textLP = "LP: " + player.lifePoints + "/" + PlayerManager.MAX_LIFE_POINTS;
-		GUI.Label (new Rect (10, 10, 100, 20), textLP, styleLPs);
-		// time label
-		string textTime = "Time: " + (int)timeSinceStart;
-		GUI.Label (new Rect (10, 30, 100, 20), textTime, styleLPs);
-
-		// occasionally show opener button
-		if (isShowingOpenerButton) {
-			if (GUI.Button (new Rect (Screen.width / 2 - 100 / 2, Screen.height / 2 + 100 / 2, 100, 100), "OPEN")) {
-				selectedDoor.Open ();
-				GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.DOOR_SOUND);
-			}
-		}
-
-		// if the game is won, show the winner label
-		if (isGameWon) {
-			GUI.Label (new Rect (Screen.width / 2 - 100 / 2, Screen.height / 2 + 100 / 2, 100, 100), "YOU WON!", styleWon);
-			GUI.Label (new Rect (Screen.width / 2 - 170 / 2, Screen.height / 2 + 200 / 2, 100, 100), "Time: " + (int)timeSinceStart + " seconds", styleWon);
-		}
-	}
-
 	//
 	//
 	// Player Callbacks
@@ -99,9 +64,8 @@ public class GameManager : MonoBehaviour
 	private void OnPlayerHealthChanged (int newVal)
 	{
 		Debug.Log ("Player Health Changed to " + newVal);
-		if (newVal < 0) {
-			Debug.Log ("Respawn");
-			GameObject.Find ("Player").GetComponent<PlayerManager> ().Respawn ();
+		if (newVal <= 0) {
+			OnGameLost ();
 		}
 	}
 
@@ -121,35 +85,25 @@ public class GameManager : MonoBehaviour
 		StartCoroutine (Wait ());
 	}
 
+	/// <summary>
+	/// Called, when the player died.Similar to OnGameWon();
+	/// </summary>
+	private void OnGameLost ()
+	{
+		isGameLost = true;
+		isCountingTime = false;
+		GameObject.Find ("Root").GetComponent<SoundManager> ().PlaySound (SoundManager.TALK_SOUND);
+
+		StartCoroutine (Wait ());
+	}
+
 	// wait and reset game then
 	IEnumerator Wait ()
 	{
 		yield return new WaitForSeconds (5);
 		ResetGame ();
 	}
-		
-	//
-	//
-	// UI Functions
 
-	/// <summary>
-	/// If a door trigger has been entered, the game should show the door open button.
-	/// </summary>
-	/// <param name="connectedDoor">Connected door.</param>
-	public void ShowDoorOpenButton (Door connectedDoor)
-	{
-		isShowingOpenerButton = true;
-		selectedDoor = connectedDoor;
-	}
-
-	/// <summary>
-	/// If a door trigger has been used or exited, hide the door button and deselect the door.
-	/// </summary>
-	public void HideDoorOpenButton ()
-	{
-		isShowingOpenerButton = false;
-		selectedDoor = null;
-	}
 
 	//
 	//
@@ -162,6 +116,7 @@ public class GameManager : MonoBehaviour
 		timeSinceStart = 0;
 		// reset game state
 		isGameWon = false;
+		isGameLost = false;
 		// respawn player
 		GameObject.Find ("Player").GetComponent <PlayerManager> ().Respawn ();
 		// reactivate bombs
@@ -172,5 +127,47 @@ public class GameManager : MonoBehaviour
 		foreach (Door door in gameObject.GetComponentsInChildren<Door>()) {
 			door.Close ();
 		}
+	}
+
+	//
+	//
+	// Getters
+	public float GetTimeSinceStart ()
+	{
+		return timeSinceStart;
+	}
+
+	public bool GetIsGameWon ()
+	{
+		return isGameWon;
+	}
+
+	public bool GetIsGameLost ()
+	{
+		return isGameLost;
+	}
+
+	//
+	//
+	// environment interaction
+
+	public void SelectDoor (Door connectedDoor)
+	{
+		ui.ShowDoorOpenButton ();
+		selectedDoor = connectedDoor;
+	}
+
+	public void OpenSelectedDoor ()
+	{
+		selectedDoor.Open ();
+	}
+	
+	/// <summary>
+	/// If a door trigger has been used or exited, hide the door button and deselect the door.
+	/// </summary>
+	public void DeselectDoor ()
+	{
+		ui.HideDoorOpenButton ();
+		selectedDoor = null;
 	}
 }
